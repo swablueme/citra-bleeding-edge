@@ -5,6 +5,7 @@
 #pragma once
 
 #include <cstddef>
+#include <map>
 #include "audio_core/audio_core.h"
 #include "audio_core/sink.h"
 
@@ -22,6 +23,12 @@ public:
 
     size_t SamplesInQueue() const override {
         return 0;
+    }
+
+    void SetDevice(int device_id) override {}
+
+    std::map<int, std::string>* GetDeviceMap() override {
+        return nullptr;
     }
 };
 

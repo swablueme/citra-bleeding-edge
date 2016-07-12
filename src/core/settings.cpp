@@ -30,6 +30,7 @@ void Apply() {
 
     AudioCore::SelectSink(values.sink_id);
     AudioCore::EnableStretching(values.enable_audio_stretching);
+    AudioCore::SelectDevice(values.audio_device_id);
 }
 
 } // namespace

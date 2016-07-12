@@ -76,6 +76,13 @@ void EnableStretching(bool enable) {
     DSP::HLE::EnableStretching(enable);
 }
 
+void SelectDevice(std::string device_id){
+    if (device_id == "") {
+        LOG_ERROR(Audio, "AudioCore::SelectDevice given invalid device_id");
+        return;
+    }
+}
+
 void Shutdown() {
     CoreTiming::UnscheduleEvent(tick_event, 0);
     DSP::HLE::Shutdown();
