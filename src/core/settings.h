@@ -6,6 +6,7 @@
 
 #include <array>
 #include <string>
+#include <map>
 #include "common/common_types.h"
 
 namespace Settings {
@@ -104,6 +105,7 @@ struct Values {
     // Audio
     std::string sink_id;
     bool enable_audio_stretching;
+    std::string audio_device_id;
 
     // Debugging
     bool use_gdbstub;

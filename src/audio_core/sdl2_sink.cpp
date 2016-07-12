@@ -8,6 +8,7 @@
 #include <SDL.h>
 #include "audio_core/audio_core.h"
 #include "audio_core/sdl2_sink.h"
+#include "core/settings.h"
 #include "common/assert.h"
 #include "common/logging/log.h"
 
@@ -42,11 +43,28 @@ SDL2Sink::SDL2Sink() : impl(std::make_unique<Impl>()) {
     SDL_AudioSpec obtained_audiospec;
     SDL_zero(obtained_audiospec);
 
-    impl->audio_device_id =
-        SDL_OpenAudioDevice(nullptr, false, &desired_audiospec, &obtained_audiospec, 0);
-    if (impl->audio_device_id <= 0) {
-        LOG_CRITICAL(Audio_Sink, "SDL_OpenAudioDevice failed with: %s", SDL_GetError());
-        return;
+    int device_count = SDL_GetNumAudioDevices(0);
+    device_map.clear();
+    for (int i = 0; i < device_count; ++i) {
+        device_map[i] = SDL_GetAudioDeviceName(i, 0);
+    }
+
+    if (device_count < 1 ||
+        Settings::values.audio_device_id == "auto" ||
+        Settings::values.audio_device_id == "") {
+        impl->audio_device_id = SDL_OpenAudioDevice(nullptr, false, &desired_audiospec, &obtained_audiospec, 0);
+        if (impl->audio_device_id <= 0) {
+            LOG_CRITICAL(Audio_Sink, "SDL_OpenAudioDevice failed");
+            return;
+        }
+    }
+    else
+    {
+        impl->audio_device_id = SDL_OpenAudioDevice(device_map[device_id].c_str(), false, &desired_audiospec, &obtained_audiospec, 0);
+        if (impl->audio_device_id <= 0) {
+            LOG_CRITICAL(Audio_Sink, "SDL_OpenAudioDevice failed");
+            return;
+        }
     }
 
     impl->sample_rate = obtained_audiospec.freq;
@@ -94,6 +112,14 @@ size_t SDL2Sink::SamplesInQueue() const {
     SDL_UnlockAudioDevice(impl->audio_device_id);
 
     return total_size;
+}
+
+void SDL2Sink::SetDevice(int _device_id) {
+    this->device_id = _device_id;
+}
+
+std::map<int, std::string>* SDL2Sink::GetDeviceMap() {
+    return &device_map;
 }
 
 void SDL2Sink::Impl::Callback(void* impl_, u8* buffer, int buffer_size_in_bytes) {
