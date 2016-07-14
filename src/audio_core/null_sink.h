@@ -27,7 +27,7 @@ public:
 
     void SetDevice(int device_id) override {}
 
-    std::map<int, std::string>* GetDeviceMap() override {
+    std::vector<std::string>* GetDeviceMap() override {
         return nullptr;
     }
 };
