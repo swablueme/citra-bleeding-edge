@@ -21,16 +21,14 @@ public:
 
     size_t SamplesInQueue() const override;
 
-    std::map<int, std::string>* GetDeviceMap();
+    std::vector<std::string>* GetDeviceMap() override;
     void SetDevice(int _device_id);
 
 private:
     struct Impl;
     std::unique_ptr<Impl> impl;
     int device_id;
-    std::map<int, std::string> device_map;
+    std::vector<std::string> device_map;
 };
-
-extern const std::map<int, std::string> g_device_map;
 
 } // namespace AudioCore

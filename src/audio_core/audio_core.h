@@ -26,9 +26,6 @@ void SelectSink(std::string sink_id);
 /// Enable/Disable stretching.
 void EnableStretching(bool enable);
 
-/// Select the device to use based on device id.
-void SelectDevice(std::string device_id);
-
 /// Shutdown Audio Core
 void Shutdown();
 
