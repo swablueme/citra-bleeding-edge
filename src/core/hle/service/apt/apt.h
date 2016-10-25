@@ -461,6 +461,13 @@ void CheckNew3DSApp(Service::Interface* self);
  */
 void CheckNew3DS(Service::Interface* self);
 
+/**
+ * APT::ReplySleepQuery service function
+ *  Outputs:
+ *      1: Result code
+ */
+void ReplySleepQuery(Service::Interface* self);
+
 /// Initialize the APT service
 void Init();
 
