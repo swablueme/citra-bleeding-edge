@@ -112,6 +112,7 @@ private slots:
     void OnMenuRecentFile();
     void OnSwapScreens();
     void OnConfigure();
+    void OnCheats();
     void OnDisplayTitleBars(bool);
     void ToggleWindowMode();
     void OnCreateGraphicsSurfaceViewer();
