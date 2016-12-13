@@ -1,3 +1,25 @@
+# lemonbot merge log
+
+Scroll down for the original README.md!
+
+======
+
+|   PR | Ref                  | Commit                                     | Author      | Status   |
+|-----:|:---------------------|:-------------------------------------------|:------------|:---------|
+|   19 | pipe3                | `8f51d9522c670158b9517df3af236f24b8c6c31f` | MerryMage   | Merged   |
+|   17 | bleeding-edge-base   | `0e2339c482b197b9a049a99c8a4304b11e1430c0` | jroweboy    | Merged   |
+|   10 | gs-new-refactor      | `f89d6d920795f3bd9d15cea039ec5263223d8960` | JayFoxRox   | Merged   |
+|    5 | jfr-fix-batch-errors | `4f4326d0cf0f7a5e23057df89acf8f0aafa19f41` | jroweboy    | Merged   |
+| 2260 | scheduling           | `406907d57055965780e04769482556995de8c50a` | Subv        | Merged   |
+| 2240 | auto-region          | `84e78790ab3f3e8883493b18946e97328d921774` | wwylele     | Merged   |
+| 2063 | CheatsModule         | `080e24c598e4eda2eec5fdcaf3903c31fef757b0` | makotech222 | Merged   |
+| 1995 | inputcore            | `7d5a26d8f4c9e2880fe2166a1b19e1d7eebed9b1` | makotech222 | Failed   |
+| 1951 | motion-sensor        | `d43a1e3815c3e572c617aede133c0aafd1cc8dc0` | wwylele     | Merged   |
+
+End of merge log. You can find the original README.md below the break.
+
+======
+
 **BEFORE FILING AN ISSUE, READ THE RELEVANT SECTION IN THE [CONTRIBUTING](https://github.com/citra-emu/citra/blob/master/CONTRIBUTING.md#reporting-issues) FILE!!!**
 
 Citra Emulator
