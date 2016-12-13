@@ -4,23 +4,26 @@
 
 #include "core/hle/service/act_a.h"
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Namespace ACT_A
-
-namespace ACT_A {
+namespace Service {
+namespace ACT {
 
 const Interface::FunctionInfo FunctionTable[] = {
+    // act:u shared commands
+    {0x00010084, nullptr, "Initialize"},
+    {0x00020040, nullptr, "GetErrorCode"},
+    {0x000600C2, nullptr, "GetAccountDataBlock"},
+    {0x000B0042, nullptr, "AcquireEulaList"},
+    {0x000D0040, nullptr, "GenerateUuid"},
+    // act:a
     {0x041300C2, nullptr, "UpdateMiiImage"},
     {0x041B0142, nullptr, "AgreeEula"},
     {0x04210042, nullptr, "UploadMii"},
     {0x04230082, nullptr, "ValidateMailAddress"},
 };
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Interface class
-
-Interface::Interface() {
+ACT_A::ACT_A() {
     Register(FunctionTable);
 }
 
-} // namespace
+} // namespace ACT
+} // namespace Service

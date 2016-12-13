@@ -189,10 +189,6 @@ void RasterizerOpenGL::DrawTriangles() {
         GL_DRAW_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D,
         (has_stencil && depth_surface != nullptr) ? depth_surface->texture.handle : 0, 0);
 
-    if (OpenGLState::CheckFBStatus(GL_DRAW_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        return;
-    }
-
     // Sync the viewport
     // These registers hold half-width and half-height, so must be multiplied by 2
     GLsizei viewport_width = (GLsizei)Pica::float24::FromRaw(regs.viewport_size_x).ToFloat32() * 2;
@@ -807,10 +803,6 @@ bool RasterizerOpenGL::AccelerateFill(const GPU::Regs::MemoryFillConfig& config)
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0,
                                0);
 
-        if (OpenGLState::CheckFBStatus(GL_DRAW_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            return false;
-        }
-
         GLfloat color_values[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
         // TODO: Handle additional pixel format and fill value size combinations to accelerate more
@@ -895,10 +887,6 @@ bool RasterizerOpenGL::AccelerateFill(const GPU::Regs::MemoryFillConfig& config)
                                dst_surface->texture.handle, 0);
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
 
-        if (OpenGLState::CheckFBStatus(GL_DRAW_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            return false;
-        }
-
         GLfloat value_float;
         if (dst_surface->pixel_format == CachedSurface::PixelFormat::D16) {
             value_float = config.value_32bit / 65535.0f; // 2^16 - 1
@@ -913,10 +901,6 @@ bool RasterizerOpenGL::AccelerateFill(const GPU::Regs::MemoryFillConfig& config)
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D,
                                dst_surface->texture.handle, 0);
-
-        if (OpenGLState::CheckFBStatus(GL_DRAW_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            return false;
-        }
 
         GLfloat value_float = (config.value_32bit & 0xFFFFFF) / 16777215.0f; // 2^24 - 1
         GLint value_int = (config.value_32bit >> 24);
@@ -1083,7 +1067,9 @@ void RasterizerOpenGL::SetShader() {
         GLint block_size;
         glGetActiveUniformBlockiv(current_shader->shader.handle, block_index,
                                   GL_UNIFORM_BLOCK_DATA_SIZE, &block_size);
-        ASSERT_MSG(block_size == sizeof(UniformData), "Uniform block size did not match!");
+        ASSERT_MSG(block_size == sizeof(UniformData),
+                   "Uniform block size did not match! Got %d, expected %zu",
+                   static_cast<int>(block_size), sizeof(UniformData));
         glUniformBlockBinding(current_shader->shader.handle, block_index, 0);
 
         // Update uniforms

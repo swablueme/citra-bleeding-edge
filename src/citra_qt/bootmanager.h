@@ -2,6 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#pragma once
+
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
@@ -21,7 +23,7 @@ class EmuThread : public QThread {
     Q_OBJECT
 
 public:
-    EmuThread(GRenderWindow* render_window);
+    explicit EmuThread(GRenderWindow* render_window);
 
     /**
      * Start emulation (on new thread)

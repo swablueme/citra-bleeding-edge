@@ -18,10 +18,12 @@ set(SRCS
             file_sys/archive_backend.cpp
             file_sys/archive_extsavedata.cpp
             file_sys/archive_ncch.cpp
+            file_sys/archive_other_savedata.cpp
             file_sys/archive_romfs.cpp
             file_sys/archive_savedata.cpp
             file_sys/archive_sdmc.cpp
             file_sys/archive_sdmcwriteonly.cpp
+            file_sys/archive_source_sd_savedata.cpp
             file_sys/archive_systemsavedata.cpp
             file_sys/disk_archive.cpp
             file_sys/ivfc_archive.cpp
@@ -75,6 +77,7 @@ set(SRCS
             hle/service/cecd/cecd_u.cpp
             hle/service/cfg/cfg.cpp
             hle/service/cfg/cfg_i.cpp
+            hle/service/cfg/cfg_nor.cpp
             hle/service/cfg/cfg_s.cpp
             hle/service/cfg/cfg_u.cpp
             hle/service/csnd_snd.cpp
@@ -103,8 +106,13 @@ set(SRCS
             hle/service/ldr_ro/ldr_ro.cpp
             hle/service/ldr_ro/memory_synchronizer.cpp
             hle/service/mic_u.cpp
+            hle/service/mvd/mvd.cpp
+            hle/service/mvd/mvd_std.cpp
             hle/service/ndm/ndm.cpp
             hle/service/ndm/ndm_u.cpp
+            hle/service/nfc/nfc.cpp
+            hle/service/nfc/nfc_m.cpp
+            hle/service/nfc/nfc_u.cpp
             hle/service/news/news.cpp
             hle/service/news/news_s.cpp
             hle/service/news/news_u.cpp
@@ -116,9 +124,15 @@ set(SRCS
             hle/service/nwm_uds.cpp
             hle/service/pm_app.cpp
             hle/service/ptm/ptm.cpp
+            hle/service/ptm/ptm_gets.cpp
             hle/service/ptm/ptm_play.cpp
+            hle/service/ptm/ptm_sets.cpp
             hle/service/ptm/ptm_sysm.cpp
             hle/service/ptm/ptm_u.cpp
+            hle/service/qtm/qtm.cpp
+            hle/service/qtm/qtm_s.cpp
+            hle/service/qtm/qtm_sp.cpp
+            hle/service/qtm/qtm_u.cpp
             hle/service/service.cpp
             hle/service/soc_u.cpp
             hle/service/srv.cpp
@@ -163,10 +177,12 @@ set(HEADERS
             file_sys/archive_backend.h
             file_sys/archive_extsavedata.h
             file_sys/archive_ncch.h
+            file_sys/archive_other_savedata.h
             file_sys/archive_romfs.h
             file_sys/archive_savedata.h
             file_sys/archive_sdmc.h
             file_sys/archive_sdmcwriteonly.h
+            file_sys/archive_source_sd_savedata.h
             file_sys/archive_systemsavedata.h
             file_sys/directory_backend.h
             file_sys/disk_archive.h
@@ -224,6 +240,7 @@ set(HEADERS
             hle/service/cecd/cecd_u.h
             hle/service/cfg/cfg.h
             hle/service/cfg/cfg_i.h
+            hle/service/cfg/cfg_nor.h
             hle/service/cfg/cfg_s.h
             hle/service/cfg/cfg_u.h
             hle/service/csnd_snd.h
@@ -252,8 +269,13 @@ set(HEADERS
             hle/service/ldr_ro/ldr_ro.h
             hle/service/ldr_ro/memory_synchronizer.h
             hle/service/mic_u.h
+            hle/service/mvd/mvd.h
+            hle/service/mvd/mvd_std.h
             hle/service/ndm/ndm.h
             hle/service/ndm/ndm_u.h
+            hle/service/nfc/nfc.h
+            hle/service/nfc/nfc_m.h
+            hle/service/nfc/nfc_u.h
             hle/service/news/news.h
             hle/service/news/news_s.h
             hle/service/news/news_u.h
@@ -265,9 +287,15 @@ set(HEADERS
             hle/service/nwm_uds.h
             hle/service/pm_app.h
             hle/service/ptm/ptm.h
+            hle/service/ptm/ptm_gets.h
             hle/service/ptm/ptm_play.h
+            hle/service/ptm/ptm_sets.h
             hle/service/ptm/ptm_sysm.h
             hle/service/ptm/ptm_u.h
+            hle/service/qtm/qtm.h
+            hle/service/qtm/qtm_s.h
+            hle/service/qtm/qtm_sp.h
+            hle/service/qtm/qtm_u.h
             hle/service/service.h
             hle/service/soc_u.h
             hle/service/srv.h

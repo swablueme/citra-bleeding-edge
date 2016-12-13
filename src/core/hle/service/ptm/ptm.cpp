@@ -6,7 +6,9 @@
 #include "core/file_sys/file_backend.h"
 #include "core/hle/service/fs/archive.h"
 #include "core/hle/service/ptm/ptm.h"
+#include "core/hle/service/ptm/ptm_gets.h"
 #include "core/hle/service/ptm/ptm_play.h"
+#include "core/hle/service/ptm/ptm_sets.h"
 #include "core/hle/service/ptm/ptm_sysm.h"
 #include "core/hle/service/ptm/ptm_u.h"
 #include "core/hle/service/service.h"
@@ -81,7 +83,7 @@ void GetTotalStepCount(Service::Interface* self) {
     LOG_WARNING(Service_PTM, "(STUBBED) called");
 }
 
-void IsLegacyPowerOff(Service::Interface* self) {
+void GetSoftwareClosedFlag(Service::Interface* self) {
     u32* cmd_buff = Kernel::GetCommandBuffer();
 
     cmd_buff[1] = RESULT_SUCCESS.raw;
@@ -106,9 +108,12 @@ void CheckNew3DS(Service::Interface* self) {
 }
 
 void Init() {
-    AddService(new PTM_Play_Interface);
-    AddService(new PTM_Sysm_Interface);
-    AddService(new PTM_U_Interface);
+    AddService(new PTM_Gets);
+    AddService(new PTM_Play);
+    AddService(new PTM_S);
+    AddService(new PTM_Sets);
+    AddService(new PTM_Sysm);
+    AddService(new PTM_U);
 
     shell_open = true;
     battery_is_charging = true;
@@ -137,7 +142,7 @@ void Init() {
             Service::FS::OpenFileFromArchive(*archive_result, gamecoin_path, open_mode);
         if (gamecoin_result.Succeeded()) {
             auto gamecoin = gamecoin_result.MoveFrom();
-            gamecoin->backend->Write(0, sizeof(GameCoin), 1,
+            gamecoin->backend->Write(0, sizeof(GameCoin), true,
                                      reinterpret_cast<const u8*>(&default_game_coin));
             gamecoin->backend->Close();
         }

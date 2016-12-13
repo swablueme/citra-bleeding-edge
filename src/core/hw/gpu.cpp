@@ -8,7 +8,10 @@
 #include "common/color.h"
 #include "common/common_types.h"
 #include "common/logging/log.h"
+#include "common/math_util.h"
 #include "common/microprofile.h"
+#include "common/thread.h"
+#include "common/timer.h"
 #include "common/vector_math.h"
 #include "core/core_timing.h"
 #include "core/hle/service/gsp_gpu.h"
@@ -35,6 +38,14 @@ const u64 frame_ticks = 268123480ull / 60;
 static int vblank_event;
 /// Total number of frames drawn
 static u64 frame_count;
+/// Start clock for frame limiter
+static u32 time_point;
+/// Total delay caused by slow frames
+static float time_delay;
+constexpr float FIXED_FRAME_TIME = 1000.0f / 60;
+// Max lag caused by slow frames. Can be adjusted to compensate for too many slow frames. Higher
+// values increases time needed to limit frame rate after spikes
+constexpr float MAX_LAG_TIME = 18;
 
 template <typename T>
 inline void Read(T& var, const u32 raw_addr) {
@@ -419,9 +430,9 @@ inline void Write(u32 addr, const T data) {
             // TODO: hwtest this
             if (config.GetStartAddress() != 0) {
                 if (!is_second_filler) {
-                    GSP_GPU::SignalInterrupt(GSP_GPU::InterruptId::PSC0);
+                    Service::GSP::SignalInterrupt(Service::GSP::InterruptId::PSC0);
                 } else {
-                    GSP_GPU::SignalInterrupt(GSP_GPU::InterruptId::PSC1);
+                    Service::GSP::SignalInterrupt(Service::GSP::InterruptId::PSC1);
                 }
             }
 
@@ -462,7 +473,7 @@ inline void Write(u32 addr, const T data) {
             }
 
             g_regs.display_transfer_config.trigger = 0;
-            GSP_GPU::SignalInterrupt(GSP_GPU::InterruptId::PPF);
+            Service::GSP::SignalInterrupt(Service::GSP::InterruptId::PPF);
         }
         break;
     }
@@ -476,8 +487,8 @@ inline void Write(u32 addr, const T data) {
             u32* buffer = (u32*)Memory::GetPhysicalPointer(config.GetPhysicalAddress());
 
             if (Pica::g_debug_context && Pica::g_debug_context->recorder) {
-                Pica::g_debug_context->recorder->MemoryAccessed(
-                    (u8*)buffer, config.size * sizeof(u32), config.GetPhysicalAddress());
+                Pica::g_debug_context->recorder->MemoryAccessed((u8*)buffer, config.size,
+                                                                config.GetPhysicalAddress());
             }
 
             Pica::CommandProcessor::ProcessCommandList(buffer, config.size);
@@ -512,6 +523,21 @@ template void Write<u32>(u32 addr, const u32 data);
 template void Write<u16>(u32 addr, const u16 data);
 template void Write<u8>(u32 addr, const u8 data);
 
+static void FrameLimiter() {
+    time_delay += FIXED_FRAME_TIME;
+    time_delay = MathUtil::Clamp(time_delay, -MAX_LAG_TIME, MAX_LAG_TIME);
+    s32 desired_time = static_cast<s32>(time_delay);
+    s32 elapsed_time = static_cast<s32>(Common::Timer::GetTimeMs() - time_point);
+
+    if (elapsed_time < desired_time) {
+        Common::SleepCurrentThread(desired_time - elapsed_time);
+    }
+
+    u32 frame_time = Common::Timer::GetTimeMs() - time_point;
+
+    time_delay -= frame_time;
+}
+
 /// Update hardware
 static void VBlankCallback(u64 userdata, int cycles_late) {
     frame_count++;
@@ -522,11 +548,17 @@ static void VBlankCallback(u64 userdata, int cycles_late) {
     // screen, or if both use the same interrupts and these two instead determine the
     // beginning and end of the VBlank period. If needed, split the interrupt firing into
     // two different intervals.
-    GSP_GPU::SignalInterrupt(GSP_GPU::InterruptId::PDC0);
-    GSP_GPU::SignalInterrupt(GSP_GPU::InterruptId::PDC1);
+    Service::GSP::SignalInterrupt(Service::GSP::InterruptId::PDC0);
+    Service::GSP::SignalInterrupt(Service::GSP::InterruptId::PDC1);
 
     // Check for user input updates
     Service::HID::Update();
+
+    if (!Settings::values.use_vsync && Settings::values.toggle_framelimit) {
+        FrameLimiter();
+    }
+
+    time_point = Common::Timer::GetTimeMs();
 
     // Reschedule recurrent event
     CoreTiming::ScheduleEvent(frame_ticks - cycles_late, vblank_event);
@@ -563,6 +595,7 @@ void Init() {
     framebuffer_sub.active_fb = 0;
 
     frame_count = 0;
+    time_point = Common::Timer::GetTimeMs();
 
     vblank_event = CoreTiming::RegisterEvent("GPU::VBlankCallback", VBlankCallback);
     CoreTiming::ScheduleEvent(frame_ticks, vblank_event);
