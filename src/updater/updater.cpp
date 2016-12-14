@@ -40,7 +40,7 @@ void startProcessWrapper(std::string name, std::string args, boolean wait) {
 
 void displayWelcome() {
     MessageBoxA(NULL, "You are currently running on the channel: Bleeding Edge.\n"
-            "This is a build of Citra with additional changes that have not yet been fully tested or deemed stable."
+            "This is a build of Citra with additional changes that have not yet been fully tested or deemed stable. "
             "Please do not report bugs against this build.\n\n"
             "If you believe you've found a bug, please retest on our nightly builds.\n\n"
             "Citra will automatically prompt you to update if one is available.",
