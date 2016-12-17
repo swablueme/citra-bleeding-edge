@@ -13,6 +13,7 @@
 #include <QMessageBox>
 #include <QtGui>
 #include "citra_qt/bootmanager.h"
+#include "citra_qt/cheat_gui.h"
 #include "citra_qt/config.h"
 #include "citra_qt/configure_dialog.h"
 #include "citra_qt/debugger/callstack.h"
@@ -151,6 +152,7 @@ GMainWindow::GMainWindow() : config(new Config()), emu_thread(nullptr) {
     microProfileDialog->restoreGeometry(UISettings::values.microprofile_geometry);
     microProfileDialog->setVisible(UISettings::values.microprofile_visible);
 #endif
+    ui.action_Cheats->setEnabled(false);
 
     game_list->LoadInterfaceLayout();
 
@@ -176,6 +178,7 @@ GMainWindow::GMainWindow() : config(new Config()), emu_thread(nullptr) {
     connect(game_list, SIGNAL(OpenSaveFolderRequested(u64)), this,
             SLOT(OnGameListOpenSaveFolder(u64)), Qt::DirectConnection);
     connect(ui.action_Configure, SIGNAL(triggered()), this, SLOT(OnConfigure()));
+    connect(ui.action_Cheats, SIGNAL(triggered()), this, SLOT(OnCheats()));
     connect(ui.action_Load_File, SIGNAL(triggered()), this, SLOT(OnMenuLoadFile()),
             Qt::DirectConnection);
     connect(ui.action_Load_Symbol_Map, SIGNAL(triggered()), this, SLOT(OnMenuLoadSymbolMap()));
@@ -419,6 +422,7 @@ void GMainWindow::ShutdownGame() {
     ui.action_Start->setText(tr("Start"));
     ui.action_Pause->setEnabled(false);
     ui.action_Stop->setEnabled(false);
+    ui.action_Cheats->setEnabled(false);
     render_window->hide();
     game_list->show();
 
@@ -531,6 +535,7 @@ void GMainWindow::OnStartGame() {
 
     ui.action_Start->setEnabled(false);
     ui.action_Start->setText(tr("Continue"));
+    ui.action_Cheats->setEnabled(true);
 
     ui.action_Pause->setEnabled(true);
     ui.action_Stop->setEnabled(true);
@@ -586,6 +591,11 @@ void GMainWindow::OnConfigure() {
 void GMainWindow::OnSwapScreens() {
     Settings::values.swap_screen = !Settings::values.swap_screen;
     Settings::Apply();
+}
+
+void GMainWindow::OnCheats() {
+    CheatDialog cheat_dialog(this);
+    cheat_dialog.exec();
 }
 
 void GMainWindow::OnCreateGraphicsSurfaceViewer() {
