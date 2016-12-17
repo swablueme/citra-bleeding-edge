@@ -18,9 +18,9 @@ class FileBackend;
 
 /// TODO(Subv): Confirm length of these strings
 /// The unique system identifier hash, also known as ID0
-static constexpr char SYSTEM_ID[]{ "00000000000000000000000000000000" };
+static constexpr char SYSTEM_ID[]{"00000000000000000000000000000000"};
 /// The scrambled SD card CID, also known as ID1
-static constexpr char SDCARD_ID[]{ "00000000000000000000000000000000" };
+static constexpr char SDCARD_ID[]{"00000000000000000000000000000000"};
 
 namespace Service {
 namespace FS {
