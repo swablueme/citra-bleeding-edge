@@ -13,6 +13,14 @@
 namespace Service {
 namespace CAM {
 
+enum CameraIndex {
+    OuterRightCamera = 0,
+    InnerCamera = 1,
+    OuterLeftCamera = 2,
+
+    NumCameras = 3,
+};
+
 enum class Effect : u8 {
     None = 0,
     Mono = 1,
@@ -188,6 +196,8 @@ struct PackageParameterWithContext {
     Effect effect;
     Size size;
     INSERT_PADDING_BYTES(3);
+
+    Resolution GetResolution();
 };
 
 static_assert(sizeof(PackageParameterWithContext) == 8,
@@ -199,6 +209,10 @@ struct PackageParameterWithContextDetail {
     Flip flip;
     Effect effect;
     Resolution resolution;
+
+    Resolution GetResolution() {
+        return resolution;
+    }
 };
 
 static_assert(sizeof(PackageParameterWithContextDetail) == 16,

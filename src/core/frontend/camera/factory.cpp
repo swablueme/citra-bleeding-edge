@@ -19,11 +19,14 @@ void RegisterFactory(const std::string& name, std::unique_ptr<CameraFactory> fac
 
 std::unique_ptr<CameraInterface> CreateCamera(const std::string& name, const std::string& config) {
     auto pair = factories.find(name);
-    if (pair == factories.end()) {
-        LOG_ERROR(Service_CAM, "Unknown camera \"%s\"", name.c_str());
-        return std::make_unique<BlankCamera>();
+    if (pair != factories.end()) {
+        return pair->second->Create(config);
     }
-    return factories[name]->Create(config);
+
+    if (name != "blank") {
+        LOG_ERROR(Service_CAM, "Unknown camera \"%s\"", name.c_str());
+    }
+    return std::make_unique<BlankCamera>();
 }
 
 } // namespace Camera

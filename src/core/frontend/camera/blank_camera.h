@@ -25,9 +25,4 @@ private:
     bool output_rgb = false;
 };
 
-class BlankCameraFactory final : public CameraFactory {
-public:
-    std::unique_ptr<CameraInterface> Create(const std::string& config) const override;
-};
-
 } // namespace Camera

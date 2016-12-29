@@ -66,19 +66,20 @@ void Config::ReadValues() {
         qt_config->value("enable_audio_stretching", true).toBool();
     qt_config->endGroup();
 
+    using namespace Service::CAM;
     qt_config->beginGroup("Camera");
-    Settings::values.camera_name[0] =
-        qt_config->value("camera_out_right_name", "blank").toString().toStdString();
-    Settings::values.camera_config[0] =
-        qt_config->value("camera_out_right_config", "").toString().toStdString();
-    Settings::values.camera_name[1] =
-        qt_config->value("camera_in_name", "blank").toString().toStdString();
-    Settings::values.camera_config[1] =
-        qt_config->value("camera_in_config", "").toString().toStdString();
-    Settings::values.camera_name[2] =
-        qt_config->value("camera_out_left_name", "blank").toString().toStdString();
-    Settings::values.camera_config[2] =
-        qt_config->value("camera_out_left_config", "").toString().toStdString();
+    Settings::values.camera_name[OuterRightCamera] =
+        qt_config->value("camera_outer_right_name", "blank").toString().toStdString();
+    Settings::values.camera_config[OuterRightCamera] =
+        qt_config->value("camera_outer_right_config", "").toString().toStdString();
+    Settings::values.camera_name[InnerCamera] =
+        qt_config->value("camera_inner_name", "blank").toString().toStdString();
+    Settings::values.camera_config[InnerCamera] =
+        qt_config->value("camera_inner_config", "").toString().toStdString();
+    Settings::values.camera_name[OuterLeftCamera] =
+        qt_config->value("camera_outer_left_name", "blank").toString().toStdString();
+    Settings::values.camera_config[OuterLeftCamera] =
+        qt_config->value("camera_outer_left_config", "").toString().toStdString();
     qt_config->endGroup();
 
     qt_config->beginGroup("Data Storage");
@@ -186,18 +187,20 @@ void Config::SaveValues() {
     qt_config->setValue("enable_audio_stretching", Settings::values.enable_audio_stretching);
     qt_config->endGroup();
 
+    using namespace Service::CAM;
     qt_config->beginGroup("Camera");
-    qt_config->setValue("camera_out_right_name",
-                        QString::fromStdString(Settings::values.camera_name[0]));
-    qt_config->setValue("camera_out_right_config",
-                        QString::fromStdString(Settings::values.camera_config[0]));
-    qt_config->setValue("camera_in_name", QString::fromStdString(Settings::values.camera_name[1]));
-    qt_config->setValue("camera_in_config",
-                        QString::fromStdString(Settings::values.camera_config[1]));
-    qt_config->setValue("camera_out_left_name",
-                        QString::fromStdString(Settings::values.camera_name[2]));
-    qt_config->setValue("camera_out_left_config",
-                        QString::fromStdString(Settings::values.camera_config[2]));
+    qt_config->setValue("camera_outer_right_name",
+                        QString::fromStdString(Settings::values.camera_name[OuterRightCamera]));
+    qt_config->setValue("camera_outer_right_config",
+                        QString::fromStdString(Settings::values.camera_config[OuterRightCamera]));
+    qt_config->setValue("camera_inner_name",
+                        QString::fromStdString(Settings::values.camera_name[InnerCamera]));
+    qt_config->setValue("camera_inner_config",
+                        QString::fromStdString(Settings::values.camera_config[InnerCamera]));
+    qt_config->setValue("camera_outer_left_name",
+                        QString::fromStdString(Settings::values.camera_name[OuterLeftCamera]));
+    qt_config->setValue("camera_outer_left_config",
+                        QString::fromStdString(Settings::values.camera_config[OuterLeftCamera]));
     qt_config->endGroup();
 
     qt_config->beginGroup("Data Storage");

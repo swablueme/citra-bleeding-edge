@@ -92,14 +92,19 @@ void Config::ReadValues() {
     Settings::values.region_value = sdl2_config->GetInteger("System", "region_value", 1);
 
     // Camera
-    Settings::values.camera_name[0] =
-        sdl2_config->Get("Camera", "camera_out_right_name", "Blank camera");
-    Settings::values.camera_config[0] = sdl2_config->Get("Camera", "camera_out_right_config", "");
-    Settings::values.camera_name[1] = sdl2_config->Get("Camera", "camera_in_name", "Blank camera");
-    Settings::values.camera_config[1] = sdl2_config->Get("Camera", "camera_in_config", "");
-    Settings::values.camera_name[2] =
-        sdl2_config->Get("Camera", "camera_out_left_name", "Blank camera");
-    Settings::values.camera_config[2] = sdl2_config->Get("Camera", "camera_out_left_config", "");
+    using namespace Service::CAM;
+    Settings::values.camera_name[OuterRightCamera] =
+        sdl2_config->Get("Camera", "camera_outer_right_name", "Blank camera");
+    Settings::values.camera_config[OuterRightCamera] =
+        sdl2_config->Get("Camera", "camera_outer_right_config", "");
+    Settings::values.camera_name[InnerCamera] =
+        sdl2_config->Get("Camera", "camera_inner_name", "Blank camera");
+    Settings::values.camera_config[InnerCamera] =
+        sdl2_config->Get("Camera", "camera_inner_config", "");
+    Settings::values.camera_name[OuterLeftCamera] =
+        sdl2_config->Get("Camera", "camera_outer_left_name", "Blank camera");
+    Settings::values.camera_config[OuterLeftCamera] =
+        sdl2_config->Get("Camera", "camera_outer_left_config", "");
 
     // Miscellaneous
     Settings::values.log_filter = sdl2_config->Get("Miscellaneous", "log_filter", "*:Info");

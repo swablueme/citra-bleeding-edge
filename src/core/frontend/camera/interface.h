@@ -7,11 +7,10 @@
 #include <vector>
 #include "common/common_types.h"
 #include "core/hle/service/cam/cam.h"
-#include "core/hle/service/y2r_u.h"
 
 namespace Camera {
 
-/// An abstract class standing for a camera. All camera implementation should inherit from this.
+/// An abstract class standing for a camera. All camera implementations should inherit from this.
 class CameraInterface {
 public:
     virtual ~CameraInterface();

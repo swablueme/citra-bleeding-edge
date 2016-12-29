@@ -112,7 +112,7 @@ constexpr std::array<int, 13> LATENCY_BY_FRAME_RATE{{
     33,  // Rate_30_To_10
 }};
 
-std::array<CameraConfig, 3> cameras;
+std::array<CameraConfig, NumCameras> cameras;
 std::array<PortConfig, 2> ports;
 int completion_event_callback;
 
@@ -122,9 +122,9 @@ const ResultCode ERROR_OUT_OF_RANGE(ErrorDescription::OutOfRange, ErrorModule::C
                                     ErrorSummary::InvalidArgument, ErrorLevel::Usage);
 
 void CompletionEventCallBack(u64 port_id, int) {
-    auto& port = ports[port_id];
-    const auto& camera = cameras[port.camera_id];
-    auto buffer = port.capture_result.get();
+    PortConfig& port = ports[port_id];
+    const CameraConfig& camera = cameras[port.camera_id];
+    const auto buffer = port.capture_result.get();
 
     if (port.is_trimming) {
         u32 trim_width;
@@ -184,11 +184,11 @@ void CompletionEventCallBack(u64 port_id, int) {
 // Starts a receiving process on the specified port. This can only be called when is_busy = true and
 // is_receiving = false.
 void StartReceiving(int port_id) {
-    auto& port = ports[port_id];
+    PortConfig& port = ports[port_id];
     port.is_receiving = true;
 
     // launches a capture task asynchronously
-    const auto& camera = cameras[port.camera_id];
+    const CameraConfig& camera = cameras[port.camera_id];
     port.capture_result =
         std::async(std::launch::async, &Camera::CameraInterface::ReceiveFrame, camera.impl.get());
 
@@ -392,7 +392,7 @@ void SetReceiving(Service::Interface* self) {
 
     if (port_select.IsSingle()) {
         int port_id = *port_select.begin();
-        auto& port = ports[port_id];
+        PortConfig& port = ports[port_id];
         CancelReceiving(port_id);
         port.completion_event->Clear();
         port.dest = dest;
@@ -731,7 +731,7 @@ void SwitchContext(Service::Interface* self) {
         int context = *context_select.begin();
         for (int camera : camera_select) {
             cameras[camera].current_context = context;
-            const auto& context_config = cameras[camera].contexts[context];
+            const ContextConfig& context_config = cameras[camera].contexts[context];
             cameras[camera].impl->SetFlip(context_config.flip);
             cameras[camera].impl->SetEffect(context_config.effect);
             cameras[camera].impl->SetFormat(context_config.format);
@@ -754,7 +754,7 @@ void FlipImage(Service::Interface* self) {
     u32* cmd_buff = Kernel::GetCommandBuffer();
 
     const CameraSet camera_select(cmd_buff[1]);
-    auto flip = static_cast<Flip>(cmd_buff[2] & 0xFF);
+    const Flip flip = static_cast<Flip>(cmd_buff[2] & 0xFF);
     const ContextSet context_select(cmd_buff[3]);
 
     if (camera_select.IsValid() && context_select.IsValid()) {
@@ -849,7 +849,7 @@ void SetFrameRate(Service::Interface* self) {
     u32* cmd_buff = Kernel::GetCommandBuffer();
 
     const CameraSet camera_select(cmd_buff[1]);
-    const auto frame_rate = static_cast<FrameRate>(cmd_buff[2] & 0xFF);
+    const FrameRate frame_rate = static_cast<FrameRate>(cmd_buff[2] & 0xFF);
 
     if (camera_select.IsValid()) {
         for (int camera : camera_select) {
@@ -872,7 +872,7 @@ void SetEffect(Service::Interface* self) {
     u32* cmd_buff = Kernel::GetCommandBuffer();
 
     const CameraSet camera_select(cmd_buff[1]);
-    const auto effect = static_cast<Effect>(cmd_buff[2] & 0xFF);
+    const Effect effect = static_cast<Effect>(cmd_buff[2] & 0xFF);
     const ContextSet context_select(cmd_buff[3]);
 
     if (camera_select.IsValid() && context_select.IsValid()) {
@@ -901,7 +901,7 @@ void SetOutputFormat(Service::Interface* self) {
     u32* cmd_buff = Kernel::GetCommandBuffer();
 
     const CameraSet camera_select(cmd_buff[1]);
-    const auto format = static_cast<OutputFormat>(cmd_buff[2] & 0xFF);
+    const OutputFormat format = static_cast<OutputFormat>(cmd_buff[2] & 0xFF);
     const ContextSet context_select(cmd_buff[3]);
 
     if (camera_select.IsValid() && context_select.IsValid()) {
@@ -975,79 +975,56 @@ void SetPackageParameterWithoutContext(Service::Interface* self) {
     cmd_buff[0] = IPC::MakeHeader(0x33, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw;
 
-    LOG_DEBUG(Service_CAM, "(STUBBED) called");
+    LOG_WARNING(Service_CAM, "(STUBBED) called");
+}
+
+template <typename PackageParameterType, int command_id>
+static void SetPackageParameter() {
+    u32* cmd_buff = Kernel::GetCommandBuffer();
+
+    PackageParameterType package;
+    std::memcpy(&package, cmd_buff + 1, sizeof(package));
+
+    const CameraSet camera_select(static_cast<u32>(package.camera_select));
+    const ContextSet context_select(static_cast<u32>(package.context_select));
+
+    if (camera_select.IsValid() && context_select.IsValid()) {
+        for (int camera_id : camera_select) {
+            CameraConfig& camera = cameras[camera_id];
+            for (int context_id : context_select) {
+                ContextConfig& context = camera.contexts[context_id];
+                context.effect = package.effect;
+                context.flip = package.flip;
+                context.resolution = package.GetResolution();
+                if (context_id == camera.current_context) {
+                    camera.impl->SetEffect(context.effect);
+                    camera.impl->SetFlip(context.flip);
+                    camera.impl->SetResolution(context.resolution);
+                }
+            }
+        }
+        cmd_buff[1] = RESULT_SUCCESS.raw;
+    } else {
+        LOG_ERROR(Service_CAM, "invalid camera_select=%u, context_select=%u", package.camera_select,
+                  package.context_select);
+        cmd_buff[1] = ERROR_INVALID_ENUM_VALUE.raw;
+    }
+
+    cmd_buff[0] = IPC::MakeHeader(command_id, 1, 0);
+
+    LOG_DEBUG(Service_CAM, "called");
+}
+
+Resolution PackageParameterWithContext::GetResolution() {
+    return PRESET_RESOLUTION[static_cast<int>(size)];
 }
 
 void SetPackageParameterWithContext(Service::Interface* self) {
-    u32* cmd_buff = Kernel::GetCommandBuffer();
-
-    PackageParameterWithContext package;
-    std::memcpy(&package, cmd_buff + 1, sizeof(package));
-
-    const CameraSet camera_select(static_cast<u32>(package.camera_select));
-    const ContextSet context_select(static_cast<u32>(package.context_select));
-
-    if (camera_select.IsValid() && context_select.IsValid()) {
-        for (int camera_id : camera_select) {
-            auto& camera = cameras[camera_id];
-            for (int context_id : context_select) {
-                auto& context = camera.contexts[context_id];
-                context.effect = package.effect;
-                context.flip = package.flip;
-                context.resolution = PRESET_RESOLUTION[static_cast<int>(package.size)];
-                if (context_id == camera.current_context) {
-                    camera.impl->SetEffect(context.effect);
-                    camera.impl->SetFlip(context.flip);
-                    camera.impl->SetResolution(context.resolution);
-                }
-            }
-        }
-        cmd_buff[1] = RESULT_SUCCESS.raw;
-    } else {
-        LOG_ERROR(Service_CAM, "invalid camera_select=%u, context_select=%u", package.camera_select,
-                  package.context_select);
-        cmd_buff[1] = ERROR_INVALID_ENUM_VALUE.raw;
-    }
-
-    cmd_buff[0] = IPC::MakeHeader(0x34, 1, 0);
-
-    LOG_DEBUG(Service_CAM, "called");
+    SetPackageParameter<PackageParameterWithContext, 0x34>();
 }
 
 void SetPackageParameterWithContextDetail(Service::Interface* self) {
-    u32* cmd_buff = Kernel::GetCommandBuffer();
-
-    PackageParameterWithContextDetail package;
-    std::memcpy(&package, cmd_buff + 1, sizeof(package));
-
-    const CameraSet camera_select(static_cast<u32>(package.camera_select));
-    const ContextSet context_select(static_cast<u32>(package.context_select));
-
-    if (camera_select.IsValid() && context_select.IsValid()) {
-        for (int camera_id : camera_select) {
-            auto& camera = cameras[camera_id];
-            for (int context_id : context_select) {
-                auto& context = camera.contexts[context_id];
-                context.effect = package.effect;
-                context.flip = package.flip;
-                context.resolution = package.resolution;
-                if (context_id == camera.current_context) {
-                    camera.impl->SetEffect(context.effect);
-                    camera.impl->SetFlip(context.flip);
-                    camera.impl->SetResolution(context.resolution);
-                }
-            }
-        }
-        cmd_buff[1] = RESULT_SUCCESS.raw;
-    } else {
-        LOG_ERROR(Service_CAM, "invalid camera_select=%u, context_select=%u", package.camera_select,
-                  package.context_select);
-        cmd_buff[1] = ERROR_INVALID_ENUM_VALUE.raw;
-    }
-
-    cmd_buff[0] = IPC::MakeHeader(0x35, 1, 0);
-
-    LOG_DEBUG(Service_CAM, "called");
+    SetPackageParameter<PackageParameterWithContextDetail, 0x35>();
 }
 
 void GetSuitableY2rStandardCoefficient(Service::Interface* self) {
@@ -1074,12 +1051,12 @@ void PlayShutterSound(Service::Interface* self) {
 void DriverInitialize(Service::Interface* self) {
     u32* cmd_buff = Kernel::GetCommandBuffer();
 
-    for (int camera_id = 0; camera_id < 3; ++camera_id) {
-        auto& camera = cameras[camera_id];
+    for (int camera_id = 0; camera_id < NumCameras; ++camera_id) {
+        CameraConfig& camera = cameras[camera_id];
         camera.current_context = 0;
         for (int context_id = 0; context_id < 2; ++context_id) {
             // Note: the following default values are verified against real 3DS
-            auto& context = camera.contexts[context_id];
+            ContextConfig& context = camera.contexts[context_id];
             context.flip = camera_id == 1 ? Flip::Horizontal : Flip::None;
             context.effect = Effect::None;
             context.format = OutputFormat::YUV422;
@@ -1094,7 +1071,7 @@ void DriverInitialize(Service::Interface* self) {
         camera.impl->SetResolution(camera.contexts[0].resolution);
     }
 
-    for (auto& port : ports) {
+    for (PortConfig& port : ports) {
         port.Clear();
     }
 
@@ -1110,7 +1087,7 @@ void DriverFinalize(Service::Interface* self) {
     CancelReceiving(0);
     CancelReceiving(1);
 
-    for (auto& camera : cameras) {
+    for (CameraConfig& camera : cameras) {
         camera.impl = nullptr;
     }
 
@@ -1128,7 +1105,7 @@ void Init() {
     AddService(new CAM_S_Interface);
     AddService(new CAM_U_Interface);
 
-    for (auto& port : ports) {
+    for (PortConfig& port : ports) {
         port.completion_event = Event::Create(ResetType::Sticky, "CAM_U::completion_event");
         port.buffer_error_interrupt_event =
             Event::Create(ResetType::OneShot, "CAM_U::buffer_error_interrupt_event");
@@ -1142,12 +1119,12 @@ void Init() {
 void Shutdown() {
     CancelReceiving(0);
     CancelReceiving(1);
-    for (auto& port : ports) {
+    for (PortConfig& port : ports) {
         port.completion_event = nullptr;
         port.buffer_error_interrupt_event = nullptr;
         port.vsync_interrupt_event = nullptr;
     }
-    for (auto& camera : cameras) {
+    for (CameraConfig& camera : cameras) {
         camera.impl = nullptr;
     }
 }
