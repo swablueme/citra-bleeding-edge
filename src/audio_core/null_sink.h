@@ -5,7 +5,6 @@
 #pragma once
 
 #include <cstddef>
-#include <map>
 #include "audio_core/audio_core.h"
 #include "audio_core/sink.h"
 
@@ -27,8 +26,8 @@ public:
 
     void SetDevice(int device_id) override {}
 
-    std::vector<std::string>* GetDeviceMap() override {
-        return nullptr;
+    std::vector<std::string> GetDeviceList() const override {
+        return {};
     }
 };
 
