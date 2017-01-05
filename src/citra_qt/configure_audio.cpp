@@ -2,13 +2,13 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <memory>
 #include "audio_core/audio_core.h"
 #include "audio_core/sink.h"
 #include "audio_core/sink_details.h"
 #include "citra_qt/configure_audio.h"
 #include "core/settings.h"
 #include "ui_configure_audio.h"
-#include <memory>
 
 ConfigureAudio::ConfigureAudio(QWidget* parent)
     : QWidget(parent), ui(std::make_unique<Ui::ConfigureAudio>()) {
@@ -21,8 +21,8 @@ ConfigureAudio::ConfigureAudio(QWidget* parent)
     }
 
     this->setConfiguration();
-    connect(ui->output_sink_combo_box, SIGNAL(currentIndexChanged(int)),
-        this, SLOT(updateAudioDevices(int)));
+    connect(ui->output_sink_combo_box, SIGNAL(currentIndexChanged(int)), this,
+            SLOT(updateAudioDevices(int)));
 }
 
 ConfigureAudio::~ConfigureAudio() {}
@@ -44,7 +44,8 @@ void ConfigureAudio::setConfiguration() {
 
     int new_device_index = -1;
     for (int index = 0; index < ui->audio_device_combo_box->count(); index++) {
-        if (ui->audio_device_combo_box->itemText(index).toStdString() == Settings::values.audio_device_id) {
+        if (ui->audio_device_combo_box->itemText(index).toStdString() ==
+            Settings::values.audio_device_id) {
             new_device_index = index;
             break;
         }
@@ -57,7 +58,9 @@ void ConfigureAudio::applyConfiguration() {
         ui->output_sink_combo_box->itemText(ui->output_sink_combo_box->currentIndex())
             .toStdString();
     Settings::values.enable_audio_stretching = ui->toggle_audio_stretching->isChecked();
-    Settings::values.audio_device_id = ui->audio_device_combo_box->itemText(ui->audio_device_combo_box->currentIndex()).toStdString();
+    Settings::values.audio_device_id =
+        ui->audio_device_combo_box->itemText(ui->audio_device_combo_box->currentIndex())
+            .toStdString();
     Settings::Apply();
 }
 
@@ -68,18 +71,16 @@ void ConfigureAudio::updateAudioDevices(int sink_index) {
 
     // If the current sink is set to "auto", the "front" sink is selected.
     auto quick_sink_populate_device = AudioCore::g_sink_details[0];
-     if (sink_index > 0) {
+    if (sink_index > 0) {
 
-         // Case where the sink is pointed to a directly known sink device (NullSink, SDL2Sink).
-         // The first index (0) should be "auto", which is not in the vector list (-1).
-         quick_sink_populate_device = AudioCore::g_sink_details[sink_index - 1];
+        // Case where the sink is pointed to a directly known sink device (NullSink, SDL2Sink).
+        // The first index (0) should be "auto", which is not in the vector list (-1).
+        quick_sink_populate_device = AudioCore::g_sink_details[sink_index - 1];
     }
     auto iter = quick_sink_populate_device.factory();
 
-    // Prevent accessing a null device list.
-    if (std::move(iter)->GetDeviceMap()) {
-        for (const auto& device : *(std::move(iter)->GetDeviceMap())) {
-            ui->audio_device_combo_box->addItem(device.c_str());
-        }
+    std::vector<std::string> device_list = iter->GetDeviceList();
+    for (const auto& device : device_list) {
+        ui->audio_device_combo_box->addItem(device.c_str());
     }
 }
