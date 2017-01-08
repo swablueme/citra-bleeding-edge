@@ -69,17 +69,10 @@ void ConfigureAudio::updateAudioDevices(int sink_index) {
     ui->audio_device_combo_box->clear();
     ui->audio_device_combo_box->addItem("auto");
 
-    // If the current sink is set to "auto", the "front" sink is selected.
-    auto quick_sink_populate_device = AudioCore::g_sink_details[0];
-    if (sink_index > 0) {
-
-        // Case where the sink is pointed to a directly known sink device (NullSink, SDL2Sink).
-        // The first index (0) should be "auto", which is not in the vector list (-1).
-        quick_sink_populate_device = AudioCore::g_sink_details[sink_index - 1];
-    }
-    auto iter = quick_sink_populate_device.factory();
-
-    std::vector<std::string> device_list = iter->GetDeviceList();
+    std::vector<std::string> device_list =
+        AudioCore::GetSinkDetails(ui->output_sink_combo_box->itemText(sink_index).toStdString())
+            .factory()
+            ->GetDeviceList();
     for (const auto& device : device_list) {
         ui->audio_device_combo_box->addItem(device.c_str());
     }
