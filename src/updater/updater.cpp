@@ -3,12 +3,12 @@
 #include <iostream>
 #include <locale>
 #include <string>
-#include <commctrl.h>
 // clang-format off
 #include <winsock2.h>
 #include <windows.h>
 #include <wininet.h>
 #include <ws2tcpip.h>
+#include <commctrl.h>
 // clang-format on
 #include <fstream>
 
