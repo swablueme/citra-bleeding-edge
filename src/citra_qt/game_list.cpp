@@ -3,7 +3,6 @@
 // Refer to the license.txt file included.
 
 #include <cctype>
-#include <unordered_set>
 #include <QHeaderView>
 #include <QMenu>
 #include <QThreadPool>
@@ -134,13 +133,11 @@ void GameList::LoadInterfaceLayout() {
 }
 
 static bool IsGameFile(const std::string& file_name) {
-    static const std::unordered_set<std::string> extensions = {".3ds", ".3dsx", ".elf",
-                                                               ".axf", ".cci",  ".cxi"};
-
     std::string extension;
     Common::SplitPath(file_name, nullptr, nullptr, &extension);
     std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-    return extensions.find(extension) != extensions.end();
+    return UISettings::allowed_file_extensions.find(extension) !=
+           UISettings::allowed_file_extensions.end();
 }
 
 void GameListWorker::AddFstEntriesToGameList(const std::string& dir_path, unsigned int recursion) {
