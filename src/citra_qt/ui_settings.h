@@ -44,6 +44,5 @@ struct Values {
 
 extern Values values;
 
-static const std::unordered_set<std::string> allowed_file_extensions = {".3ds", ".3dsx", ".elf",
-                                                                        ".axf", ".cci",  ".cxi"};
+extern const std::unordered_set<std::string> allowed_file_extensions;
 }

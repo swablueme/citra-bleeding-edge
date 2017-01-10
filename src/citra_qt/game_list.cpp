@@ -135,8 +135,7 @@ void GameList::LoadInterfaceLayout() {
 static bool IsGameFile(const std::string& file_name) {
     std::string extension;
     Common::SplitPath(file_name, nullptr, nullptr, &extension);
-    std::transform(extension.begin(), extension.end(), extension.begin(),
-                   (int (*)(int))std::tolower);
+    std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
     return UISettings::allowed_file_extensions.find(extension) !=
            UISettings::allowed_file_extensions.end();
 }
