@@ -2,6 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <unordered_set>
 #include <QHeaderView>
 #include <QMenu>
 #include <QThreadPool>
@@ -131,6 +132,15 @@ void GameList::LoadInterfaceLayout() {
     item_model->sort(header->sortIndicatorSection(), header->sortIndicatorOrder());
 }
 
+static bool IsGameFile(const std::string& file_name) {
+    static const std::unordered_set<std::string> extensions = {".3ds", ".3dsx", ".elf",
+                                                               ".axf", ".cci",  ".cxi"};
+
+    std::string extension;
+    Common::SplitPath(file_name, nullptr, nullptr, &extension);
+    return extensions.find(extension) != extensions.end();
+}
+
 void GameListWorker::AddFstEntriesToGameList(const std::string& dir_path, unsigned int recursion) {
     const auto callback = [this, recursion](unsigned* num_entries_out, const std::string& directory,
                                             const std::string& virtual_name) -> bool {
@@ -139,7 +149,7 @@ void GameListWorker::AddFstEntriesToGameList(const std::string& dir_path, unsign
         if (stop_processing)
             return false; // Breaks the callback loop.
 
-        if (!FileUtil::IsDirectory(physical_name)) {
+        if (!FileUtil::IsDirectory(physical_name) && IsGameFile(physical_name)) {
             std::unique_ptr<Loader::AppLoader> loader = Loader::GetLoader(physical_name);
             if (!loader)
                 return true;
