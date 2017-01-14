@@ -76,6 +76,7 @@ private:
         Format format;
 
         bool from_queue;
+        bool has_played; // = false;
     };
 
     struct BufferOrder {

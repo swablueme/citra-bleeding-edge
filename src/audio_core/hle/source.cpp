@@ -177,11 +177,13 @@ void Source::ParseConfig(SourceConfiguration::Configuration& config,
     }
 
     if (config.loop_related_dirty && config.loop_related != 0) {
+        config.loop_related_dirty.Assign(0);
         LOG_WARNING(Audio_DSP, "Unhandled complex loop with loop_related=0x%08x",
                     static_cast<u32>(config.loop_related));
     }
 
     if (config.play_position_dirty && config.play_position != 0) {
+        config.play_position_dirty.Assign(0);
         LOG_WARNING(Audio_DSP, "Unhandled complex loop with play_position=0x%08x",
                     static_cast<u32>(config.play_position));
     }
@@ -257,8 +259,9 @@ bool Source::DequeueBuffer() {
     if (state.input_queue.empty())
         return false;
 
-    const Buffer buf = state.input_queue.top();
+    Buffer buf = state.input_queue.top();
 
+    // if we're in a loop, the current sound keeps playing afterwards, so leave the queue alone
     if (!buf.is_looping) {
         state.input_queue.pop();
     }
@@ -316,8 +319,10 @@ bool Source::DequeueBuffer() {
 
     state.current_sample_number = 0;
     state.next_sample_number = 0;
-    state.buffer_update = buf.from_queue && (state.current_buffer_id != buf.buffer_id);
+    state.buffer_update = buf.from_queue && !buf.has_played;
     state.current_buffer_id = buf.buffer_id;
+
+    buf.has_played = true;
 
     LOG_TRACE(Audio_DSP, "source_id=%zu buffer_id=%hu from_queue=%s current_buffer.size()=%zu",
               source_id, buf.buffer_id, buf.from_queue ? "true" : "false",
