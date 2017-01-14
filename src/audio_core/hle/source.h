@@ -76,7 +76,8 @@ private:
         Format format;
 
         bool from_queue;
-        bool has_played; // = false;
+        u32_dsp play_position; // = 0;
+        bool has_played;       // = false;
     };
 
     struct BufferOrder {
