@@ -180,11 +180,11 @@ void Source::ParseConfig(SourceConfiguration::Configuration& config,
                 state.mono_or_stereo,
                 state.format,
                 false,
-                config.play_position,
+                play_position,
             });
             LOG_TRACE(Audio_DSP, "enqueuing embedded addr=0x%08x len=%u id=%hu start=%u",
                       config.physical_address, config.length, config.buffer_id,
-                      config.play_position.u32());
+                      static_cast<u32>(config.play_position));
         }
     }
 
