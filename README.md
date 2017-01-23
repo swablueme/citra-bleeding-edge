@@ -1,3 +1,32 @@
+# lemonbot merge log
+
+Scroll down for the original README.md!
+
+======
+
+|   PR | Ref                  | Commit                                     | Author      | Status   |
+|-----:|:---------------------|:-------------------------------------------|:------------|:---------|
+|   19 | pipe3                | `8f51d9522c670158b9517df3af236f24b8c6c31f` | MerryMage   | Merged   |
+|   17 | bleeding-edge-base   | `ec0a9ac677a661d1ff6a3443804c1c64d532863c` | jroweboy    | Merged   |
+|    5 | jfr-fix-batch-errors | `4f4326d0cf0f7a5e23057df89acf8f0aafa19f41` | jroweboy    | Merged   |
+| 2434 | nfc-amiibo           | `efe7e245b2b1306c19373e05fb728b148a3ae29e` | mailwl      | Merged   |
+| 2429 | auto-language-fix    | `0045ea662fc6a58601b90118632ddb8cbb18b9d4` | wwylele     | Merged   |
+| 2428 | gsp-sdc              | `4cd0ab7d88b53a1ca30500a9ea3aff4d44532b92` | mailwl      | Merged   |
+| 2422 | dsp_loops            | `6054976ad004d9cb68571c52ea12e70e3d4f8f7c` | jmerdich    | Merged   |
+| 2421 | timers               | `ec15116a15910116331d3ef5b8132679c32a27d6` | Subv        | Failed   |
+| 2414 | texture-decode       | `f030e73dbb9b84fda8bf17e1a3fdbd82cbf2df06` | yuriks      | Merged   |
+| 2406 | session_disconnect   | `6810ba2a5fd9ac89017b64a6a886ede4f4e6d7f1` | Subv        | Merged   |
+| 2403 | select-audio-device  | `9f2d0f839bf1a7a784171ff4c8bf5d7b7f3bc60d` | Kloen       | Merged   |
+| 2402 | tired-of-this        | `5e933ec301874a7c8c986ecb50f4b36564306fee` | Kloen       | Merged   |
+| 2368 | camera-2             | `cf3a272332b03640730d1434e9802e166ca931da` | wwylele     | Merged   |
+| 2346 | shader-refactor2     | `b379bc94c1eeeb3f6e5cae8302a678d5533b4b77` | yuriks      | Merged   |
+| 2063 | CheatsModule         | `c09f519ba76dd9d5168d6385155552c170944720` | makotech222 | Merged   |
+| 2027 | ipcrefactor          | `ee6e88fdb592b442bf433acb6dbbc2d48568d2a3` | Lectem      | Merged   |
+
+End of merge log. You can find the original README.md below the break.
+
+======
+
 **BEFORE FILING AN ISSUE, READ THE RELEVANT SECTION IN THE [CONTRIBUTING](https://github.com/citra-emu/citra/blob/master/CONTRIBUTING.md#reporting-issues) FILE!!!**
 
 Citra Emulator
