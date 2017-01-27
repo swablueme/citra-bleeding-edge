@@ -165,8 +165,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
                     };
 
                     g_state.primitive_assembler.SubmitVertex(
-                        Shader::OutputVertex::FromAttributeBuffer(regs, output),
-                        AddTriangle);
+                        Shader::OutputVertex::FromAttributeBuffer(regs, output), AddTriangle);
                 }
             }
         }
