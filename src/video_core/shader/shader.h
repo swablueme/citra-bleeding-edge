@@ -41,7 +41,9 @@ struct OutputVertex {
 
     static OutputVertex FromAttributeBuffer(const Regs& regs, AttributeBuffer& output);
 };
-#define ASSERT_POS(var, pos) static_assert(offsetof(OutputVertex, var) == pos * sizeof(float24), "Semantic at wrong offset.")
+#define ASSERT_POS(var, pos)                                                                       \
+    static_assert(offsetof(OutputVertex, var) == pos * sizeof(float24), "Semantic at wrong "       \
+                                                                        "offset.")
 ASSERT_POS(pos, Regs::VSOutputAttributes::POSITION_X);
 ASSERT_POS(quat, Regs::VSOutputAttributes::QUATERNION_X);
 ASSERT_POS(color, Regs::VSOutputAttributes::COLOR_R);
