@@ -164,8 +164,8 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
                         VideoCore::g_renderer->Rasterizer()->AddTriangle(v0, v1, v2);
                     };
 
-                    auto output_vertex = Shader::OutputVertex::FromAttributeBuffer(regs, output);
-                    g_state.primitive_assembler.SubmitVertex(output_vertex, AddTriangle);
+                    g_state.primitive_assembler.SubmitVertex(
+                        Shader::OutputVertex::FromAttributeBuffer(regs, output), AddTriangle);
                 }
             }
         }
