@@ -40,8 +40,12 @@ static ScreencapPostPermission screen_capture_post_permission;
 /// Parameter data to be returned in the next call to Glance/ReceiveParameter
 static MessageParameter next_parameter;
 
+/// stores the state for CancelParameter
+static bool cancelled = false;
+
 void SendParameter(const MessageParameter& parameter) {
     next_parameter = parameter;
+    cancelled = false;
     // Signal the event to let the application know that a new parameter is ready to be read
     parameter_event->Signal();
 }
@@ -208,6 +212,11 @@ void ReceiveParameter(Service::Interface* self) {
     u32 buffer_size = cmd_buff[2];
     VAddr buffer = cmd_buff[0x104 >> 2];
 
+    if (cancelled) {
+        cmd_buff[1] = -1;
+        return;
+    }
+
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = next_parameter.sender_id;
     cmd_buff[3] = next_parameter.signal;        // Signal type
@@ -229,6 +238,11 @@ void GlanceParameter(Service::Interface* self) {
     u32 app_id = cmd_buff[1];
     u32 buffer_size = cmd_buff[2];
     VAddr buffer = cmd_buff[0x104 >> 2];
+
+    if (cancelled) {
+        cmd_buff[1] = -1;
+        return;
+    }
 
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = next_parameter.sender_id;
@@ -253,6 +267,8 @@ void CancelParameter(Service::Interface* self) {
     u32 unk = cmd_buff[2];
     u32 flag2 = cmd_buff[3];
     u32 app_id = cmd_buff[4];
+
+    cancelled = true;
 
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = 1;                  // Set to Success
@@ -491,6 +507,13 @@ void CheckNew3DS(Service::Interface* self) {
 
     cmd_buff[0] = IPC::MakeHeader(0x102, 2, 0);
     LOG_WARNING(Service_APT, "(STUBBED) called");
+}
+
+void ReplySleepQuery(Service::Interface* self) {
+    u32* cmd_buff = Kernel::GetCommandBuffer();
+
+    cmd_buff[1] = RESULT_SUCCESS.raw;
+    LOG_WARNING(Service_APT, "(STUBBED) ReplySleepQuery called");
 }
 
 void Init() {
