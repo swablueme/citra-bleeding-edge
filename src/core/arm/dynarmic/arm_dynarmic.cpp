@@ -5,6 +5,7 @@
 #include <cstring>
 #include <dynarmic/dynarmic.h>
 #include "common/assert.h"
+#include "common/avx_utils.h"
 #include "common/microprofile.h"
 #include "core/arm/dynarmic/arm_dynarmic.h"
 #include "core/arm/dynarmic/arm_dynarmic_cp15.h"
@@ -136,6 +137,7 @@ MICROPROFILE_DEFINE(ARM_Jit, "ARM JIT", "ARM JIT", MP_RGB(255, 64, 64));
 void ARM_Dynarmic::ExecuteInstructions(int num_instructions) {
     MICROPROFILE_SCOPE(ARM_Jit);
 
+    ZeroUpperAVX();
     unsigned ticks_executed = jit->Run(static_cast<unsigned>(num_instructions));
 
     AddTicks(ticks_executed);

@@ -1,7 +1,7 @@
 // Copyright 2016 Citra Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
-
+#include "common/avx_utils.h"
 #include "common/hash.h"
 #include "common/microprofile.h"
 #include "video_core/shader/shader.h"
@@ -41,6 +41,7 @@ void JitX64Engine::Run(const ShaderSetup& setup, UnitState& state) const {
     MICROPROFILE_SCOPE(GPU_Shader);
 
     const JitShader* shader = static_cast<const JitShader*>(setup.engine_data.cached_shader);
+    ZeroUpperAVX();
     shader->Run(setup, state, setup.engine_data.entry_point);
 }
 
