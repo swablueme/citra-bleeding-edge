@@ -4,6 +4,8 @@
 
 #pragma once
 
+//hack
+
 namespace Service {
 namespace Y2R {
 struct ConversionConfiguration;
@@ -13,5 +15,7 @@ struct ConversionConfiguration;
 namespace HW {
 namespace Y2R {
 void PerformConversion(Service::Y2R::ConversionConfiguration& cvt);
+void GpuConsume();
+bool Active();
 }
 }
