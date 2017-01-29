@@ -23,6 +23,7 @@
 #include "video_core/rasterizer_interface.h"
 #include "video_core/renderer_base.h"
 #include "video_core/shader/shader.h"
+#include "video_core/vertex_cache.h"
 #include "video_core/vertex_loader.h"
 #include "video_core/video_core.h"
 
@@ -235,15 +236,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
 
         DebugUtils::MemoryAccessTracker memory_accesses;
 
-        // Simple circular-replacement vertex cache
-        // The size has been tuned for optimal balance between hit-rate and the cost of lookup
-        const size_t VERTEX_CACHE_SIZE = 32;
-        std::array<u16, VERTEX_CACHE_SIZE> vertex_cache_ids;
-        std::array<Shader::OutputVertex, VERTEX_CACHE_SIZE> vertex_cache;
         Shader::OutputVertex output_vertex;
-
-        unsigned int vertex_cache_pos = 0;
-        vertex_cache_ids.fill(-1);
 
         auto* shader_engine = Shader::GetEngine();
         Shader::UnitState shader_unit;
@@ -260,25 +253,15 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
             // the PICA supports it, and it would mess up the caching, guard against it here.
             ASSERT(vertex != -1);
 
-            bool vertex_cache_hit = false;
-
             if (is_indexed) {
                 if (g_debug_context && Pica::g_debug_context->recorder) {
                     int size = index_u16 ? 2 : 1;
                     memory_accesses.AddAccess(base_address + index_info.offset + size * index,
                                               size);
                 }
-
-                for (unsigned int i = 0; i < VERTEX_CACHE_SIZE; ++i) {
-                    if (vertex == vertex_cache_ids[i]) {
-                        output_vertex = vertex_cache[i];
-                        vertex_cache_hit = true;
-                        break;
-                    }
-                }
             }
 
-            if (!vertex_cache_hit) {
+            if (!VertexCache::contains(vertex)) {
                 // Initialize data for the current vertex
                 Shader::InputVertex input;
                 loader.LoadVertex(base_address, index, vertex, input, memory_accesses);
@@ -294,12 +277,10 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
                 output_vertex = Shader::OutputVertex::FromRegisters(shader_unit.registers.output,
                                                                     regs, regs.vs.output_mask);
 
-                if (is_indexed) {
-                    vertex_cache[vertex_cache_pos] = output_vertex;
-                    vertex_cache_ids[vertex_cache_pos] = vertex;
-                    vertex_cache_pos = (vertex_cache_pos + 1) % VERTEX_CACHE_SIZE;
-                }
-            }
+                if (is_indexed)
+                    VertexCache::store(vertex, output_vertex);
+            } else
+                output_vertex = VertexCache::obtain(vertex);
 
             // Send to renderer
             using Pica::Shader::OutputVertex;
@@ -316,6 +297,8 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
                                                       range.second, range.first);
         }
 
+        if (is_indexed)
+            VertexCache::clear();
         break;
     }
 
