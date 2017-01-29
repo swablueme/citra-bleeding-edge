@@ -44,6 +44,7 @@ set(HEADERS
             shader/shader_interpreter.h
             swrasterizer.h
             utils.h
+            vertex_cache.h
             vertex_loader.h
             video_core.h
             )
