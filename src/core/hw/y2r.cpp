@@ -18,6 +18,8 @@
 namespace HW {
 namespace Y2R {
 
+static bool y2r_gpu_active = true;
+
 using namespace Service::Y2R;
 
 static const size_t MAX_TILES = 1024 / 8;
@@ -371,12 +373,20 @@ void PerformConversion(ConversionConfiguration& cvt) {
                 break;
             }
         }
-
+        y2r_gpu_active = true;
         // Note(yuriks): If additional optimization is required, output_format can be moved to a
         // template parameter, so that its dispatch can be moved to outside the inner loop.
         SendData(reinterpret_cast<u32*>(data_buffer.get()), cvt.dst, (int)row_data_size,
                  cvt.output_format, (u8)cvt.alpha);
     }
 }
+
+void GpuConsume() {
+    y2r_gpu_active = false;
+}
+bool Active() {
+    return y2r_gpu_active;
+}
+
 }
 }
