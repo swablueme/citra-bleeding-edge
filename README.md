@@ -11,7 +11,11 @@ Scroll down for the original README.md!
 |   17 | bleeding-edge-base   | `bfe4c22e90bafaac4699812ddb698a455867a3bf` | jroweboy  | Failed   |
 |    5 | jfr-fix-batch-errors | `4f4326d0cf0f7a5e23057df89acf8f0aafa19f41` | jroweboy  | Merged   |
 | 2628 | uds                  | `a7108b3e9e61ea58d05b31c5a01064ed028fab6c` | Subv      | Merged   |
+<<<<<<< 94076e2165853481e97529925aa5b0f6ca99ad30
 | 2533 | apt_ipchelper        | `e60b433efa779f34ba5040ce5e048f9a90437291` | Lectem    | Merged   |
+=======
+| 2533 | apt_ipchelper        | `e9c80ea5b778cd94363c5bb6284bb856c076cc5d` | Lectem    | Merged   |
+>>>>>>> lemonbot merge log
 | 2512 | custom-layout        | `e0a4450bbd40d69d288023ab5a95eaa0b00100fd` | SonofUgly | Merged   |
 | 2406 | session_disconnect   | `6810ba2a5fd9ac89017b64a6a886ede4f4e6d7f1` | Subv      | Merged   |
 
